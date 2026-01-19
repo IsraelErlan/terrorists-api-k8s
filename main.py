@@ -4,6 +4,7 @@ import uvicorn
 from pydantic import ValidationError
 from models import Terrorist
 from db import get_coll, insert_to_db
+import copy
 
 def read_csv(path):
     df = pd.read_csv(path)
@@ -42,8 +43,11 @@ app = FastAPI()
 def post_danger_terrorists(file: UploadFile): 
     try: 
         danger_list = csv_to_list_of_danger_terrorists(file.file)
+        d_terr  = copy.deepcopy(danger_list["top"])
+        print(d_terr)
         coll = get_coll()
-        insert_to_db(coll, danger_list["top"])
+        insert_to_db(coll, d_terr)
+        print(d_terr)
         return danger_list
     except FileNotFoundError: 
         raise HTTPException(status_code=400, detail="No file provided")
